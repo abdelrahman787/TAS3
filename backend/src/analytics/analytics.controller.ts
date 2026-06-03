@@ -1,28 +1,34 @@
-import { Controller, DefaultValuePipe, Get, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, DefaultValuePipe, Get, ParseIntPipe, Query, Request, UseGuards } from '@nestjs/common';
+import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 import { AnalyticsService } from './analytics.service';
 
+interface MaybeAuthedRequest {
+  user?: { userId: string; email: string } | null;
+}
+
 @Controller('analytics')
+@UseGuards(OptionalJwtGuard)
 export class AnalyticsController {
   constructor(private readonly analytics: AnalyticsService) {}
 
   @Get('progress')
-  progress(@Query('userId') userId?: string) {
-    return this.analytics.getProgress(userId);
+  progress(@Request() req: MaybeAuthedRequest) {
+    return this.analytics.getProgress(req.user?.userId);
   }
 
   @Get('sessions')
   sessions(
-    @Query('userId') userId?: string,
+    @Request() req: MaybeAuthedRequest,
     @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit?: number,
   ) {
-    return this.analytics.listSessions(userId, limit);
+    return this.analytics.listSessions(req.user?.userId, limit);
   }
 
   @Get('difficult-words')
   difficultWords(
-    @Query('userId') userId?: string,
+    @Request() req: MaybeAuthedRequest,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit?: number,
   ) {
-    return this.analytics.getDifficultWords(userId, limit);
+    return this.analytics.getDifficultWords(req.user?.userId, limit);
   }
 }

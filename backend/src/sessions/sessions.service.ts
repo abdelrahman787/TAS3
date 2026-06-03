@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Session } from './entities/session.entity';
@@ -12,9 +12,9 @@ export class SessionsService {
     @InjectRepository(SessionError) private readonly errors: Repository<SessionError>,
   ) {}
 
-  async create(dto: CreateSessionDto) {
+  async create(dto: CreateSessionDto, userId: string) {
     const session = this.sessions.create({
-      userId: dto.userId ?? null,
+      userId,
       scopeType: dto.scope.type,
       pageStart: dto.scope.pageStart,
       pageEnd: dto.scope.pageEnd,
@@ -24,9 +24,8 @@ export class SessionsService {
     return { sessionId: saved.id, createdAt: saved.createdAt.toISOString() };
   }
 
-  async logErrors(sessionId: string, dto: LogErrorsDto) {
-    const session = await this.sessions.findOne({ where: { id: sessionId } });
-    if (!session) throw new NotFoundException('Session not found');
+  async logErrors(sessionId: string, dto: LogErrorsDto, userId: string) {
+    const session = await this._loadOwned(sessionId, userId);
 
     const rows = dto.errors.map((e) =>
       this.errors.create({
@@ -43,9 +42,8 @@ export class SessionsService {
     return { logged: rows.length };
   }
 
-  async complete(sessionId: string, dto: CompleteSessionDto) {
-    const session = await this.sessions.findOne({ where: { id: sessionId } });
-    if (!session) throw new NotFoundException('Session not found');
+  async complete(sessionId: string, dto: CompleteSessionDto, userId: string) {
+    const session = await this._loadOwned(sessionId, userId);
 
     session.endedAt = new Date(dto.endTime);
     session.totalWords = dto.stats.totalWords;
@@ -56,5 +54,14 @@ export class SessionsService {
     session.pronunciationErrors = dto.stats.pronunciationErrors;
     await this.sessions.save(session);
     return { ok: true };
+  }
+
+  private async _loadOwned(sessionId: string, userId: string) {
+    const session = await this.sessions.findOne({ where: { id: sessionId } });
+    if (!session) throw new NotFoundException('Session not found');
+    if (session.userId && session.userId !== userId) {
+      throw new ForbiddenException('Session belongs to another user');
+    }
+    return session;
   }
 }

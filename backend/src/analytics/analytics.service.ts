@@ -18,7 +18,11 @@ export class AnalyticsService {
       .where('s.ended_at IS NOT NULL')
       .orderBy('s.created_at', 'DESC')
       .limit(limit);
-    if (userId) qb.andWhere('s.user_id = :userId', { userId });
+    if (userId) {
+      qb.andWhere('s.user_id = :userId', { userId });
+    } else {
+      qb.andWhere('s.user_id IS NULL');
+    }
     const rows = await qb.getMany();
     return rows.map((s) => ({
       id: s.id,
@@ -52,7 +56,11 @@ export class AnalyticsService {
       .addSelect('COALESCE(SUM(s.order_errors),0)', 'orderErrors')
       .addSelect('COALESCE(SUM(s.pronunciation_errors),0)', 'pronunciationErrors')
       .where('s.ended_at IS NOT NULL');
-    if (userId) qb.andWhere('s.user_id = :userId', { userId });
+    if (userId) {
+      qb.andWhere('s.user_id = :userId', { userId });
+    } else {
+      qb.andWhere('s.user_id IS NULL');
+    }
     const row = await qb.getRawOne();
     const total = Number(row.totalWords);
     const correct = Number(row.correctWords);
@@ -84,7 +92,11 @@ export class AnalyticsService {
       .addGroupBy('e.expected_word')
       .orderBy('COUNT(*)', 'DESC')
       .limit(limit);
-    if (userId) qb.andWhere('s.user_id = :userId', { userId });
+    if (userId) {
+      qb.andWhere('s.user_id = :userId', { userId });
+    } else {
+      qb.andWhere('s.user_id IS NULL');
+    }
     return qb.getRawMany();
   }
 }
