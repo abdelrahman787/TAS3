@@ -27,4 +27,6 @@ RUN npm ci --omit=dev --legacy-peer-deps --no-audit --no-fund \
 COPY dist ./dist
 
 EXPOSE 3000
-CMD ["node", "dist/main.js"]
+# tsc preserves the source tree because migrations/ lives outside
+# src/, so the real entrypoint is dist/src/main.js (not dist/main.js).
+CMD ["node", "dist/src/main.js"]
