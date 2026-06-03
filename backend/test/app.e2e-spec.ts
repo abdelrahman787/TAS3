@@ -8,6 +8,7 @@ import { AuthModule } from '../src/auth/auth.module';
 import { QuranModule } from '../src/quran/quran.module';
 import { SessionsModule } from '../src/sessions/sessions.module';
 import { AnalyticsModule } from '../src/analytics/analytics.module';
+import { AsrModule } from '../src/asr/asr.module';
 import { HealthController } from '../src/health/health.controller';
 import { QuranWord } from '../src/quran/entities/quran-word.entity';
 import { Session } from '../src/sessions/entities/session.entity';
@@ -42,6 +43,7 @@ describeOrSkip('Quran Tasmee3 e2e', () => {
         QuranModule,
         SessionsModule,
         AnalyticsModule,
+        AsrModule,
       ],
       controllers: [HealthController],
     }).compile();
@@ -176,5 +178,35 @@ describeOrSkip('Quran Tasmee3 e2e', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
     expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  // ── ASR proxy ────────────────────────────────────────────────────
+  // The happy path (token + valid audio + actual Groq call) is intentionally
+  // not exercised here — it would require a real GROQ_API_KEY and would
+  // make CI flaky. We assert the auth wall, the file-required wall and the
+  // mimetype wall; the upstream behaviour is covered by AsrService unit
+  // tests once Groq is mockable.
+  it('POST /asr/transcribe without token → 401', async () => {
+    await request(app.getHttpServer())
+      .post('/asr/transcribe')
+      .expect(401);
+  });
+
+  it('POST /asr/transcribe with token but no file → 400', async () => {
+    await request(app.getHttpServer())
+      .post('/asr/transcribe')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(400);
+  });
+
+  it('POST /asr/transcribe with token + wrong mimetype → 400', async () => {
+    await request(app.getHttpServer())
+      .post('/asr/transcribe')
+      .set('Authorization', `Bearer ${token}`)
+      .attach('audio', Buffer.from('not-real-audio'), {
+        filename: 'audio.txt',
+        contentType: 'text/plain',
+      })
+      .expect(400);
   });
 });
