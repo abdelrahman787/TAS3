@@ -26,6 +26,17 @@ iOS minimum deployment target should be 12.0 or later for `record` 5.x — edit 
 platform :ios, '12.0'
 ```
 
+## iOS — Keychain entitlement for flutter_secure_storage
+
+`flutter_secure_storage` ^9.x uses the iOS Keychain. Open the project in
+Xcode (`ios/Runner.xcworkspace`), select the Runner target, go to
+"Signing & Capabilities", and click **+ Capability → Keychain Sharing**.
+A blank entry in the Keychain Groups list is sufficient — the package
+does not require a custom access group.
+
+No Android-side changes are required for `flutter_secure_storage` beyond
+the standard manifest.
+
 ## Android — cleartext for local dev
 
 If you point the app at `http://10.0.2.2:3000` (Android emulator → host), add to `AndroidManifest.xml` inside `<application>`:

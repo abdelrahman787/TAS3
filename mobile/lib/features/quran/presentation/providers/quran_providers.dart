@@ -3,8 +3,6 @@ import '../../../../core/network/api_client.dart';
 import '../../data/models/page_model.dart';
 import '../../data/repositories/quran_repository.dart';
 
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
-
 final quranRepositoryProvider = Provider<QuranRepository>(
   (ref) => QuranRepository(ref.watch(apiClientProvider)),
 );

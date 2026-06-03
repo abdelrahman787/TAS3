@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_client.dart';
-import '../../quran/presentation/providers/quran_providers.dart';
 import 'analytics_models.dart';
 
 class AnalyticsApi {
