@@ -38,7 +38,7 @@ class ProfileScreen extends ConsumerWidget {
               data: (p) => _ProgressCard(stats: p),
             ),
             const SizedBox(height: 24),
-            _SectionHeader('Error breakdown'),
+            const _SectionHeader('Error breakdown'),
             const SizedBox(height: 8),
             progress.maybeWhen(
               data: (p) => ErrorBreakdownBar(stats: p),
@@ -59,7 +59,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 12),
-            _SectionHeader('Recent sessions'),
+            const _SectionHeader('Recent sessions'),
             const SizedBox(height: 8),
             sessions.when(
               loading: () => const SizedBox(height: 80, child: Center(child: CircularProgressIndicator())),

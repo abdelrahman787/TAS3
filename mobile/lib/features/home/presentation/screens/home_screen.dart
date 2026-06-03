@@ -85,9 +85,9 @@ class HomeScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
+                const Text(
                   AppConstants.appNameArabic,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'UthmaniHafs',
                     fontSize: 48,
                     color: AppColors.gold,

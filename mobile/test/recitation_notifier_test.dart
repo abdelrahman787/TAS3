@@ -18,7 +18,7 @@ import 'helpers/mock_secure_storage.dart';
 class FakeASRManager extends ASRManager {
   final List<String> responses;
   int _index = 0;
-  String _lastPath = '/tmp/fake.m4a';
+  final String _lastPath = '/tmp/fake.m4a';
 
   FakeASRManager(this.responses) : super(apiKey: 'test');
 

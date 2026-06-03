@@ -24,13 +24,13 @@ Future<void> main() async {
 
   ErrorWidget.builder = (FlutterErrorDetails details) {
     // TODO 5c.6: FirebaseCrashlytics.instance.recordError(details.exception, details.stack)
-    return Material(
-      color: const Color(0xFF0C1117),
+    return const Material(
+      color: Color(0xFF0C1117),
       child: Center(
         child: Text(
           'حدث خطأ غير متوقع.\nأعد تشغيل التطبيق.',
           textAlign: TextAlign.center,
-          style: const TextStyle(color: Color(0xFFC9A227), fontSize: 16),
+          style: TextStyle(color: Color(0xFFC9A227), fontSize: 16),
         ),
       ),
     );

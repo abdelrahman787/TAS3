@@ -168,7 +168,9 @@ class _StatusBar extends StatelessWidget {
     final showListening = state.isListening && state.silenceSeconds >= 5;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: AppColors.surface.withOpacity(0.6),
+      // 0.6 alpha as int; .withAlpha avoids the .withOpacity deprecation
+      // without requiring Flutter 3.27's .withValues().
+      color: AppColors.surface.withAlpha(153),
       child: Row(
         children: [
           _PulsingDot(active: state.isListening),
