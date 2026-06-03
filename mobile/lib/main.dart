@@ -18,11 +18,12 @@ Future<void> main() async {
 
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    // TODO(phase5c): forward to Crashlytics or Sentry in release builds.
+    // TODO 5c.6: replace with FirebaseCrashlytics.instance.recordFlutterFatalError
     if (kDebugMode) debugPrint('FlutterError: ${details.exceptionAsString()}');
   };
 
   ErrorWidget.builder = (FlutterErrorDetails details) {
+    // TODO 5c.6: FirebaseCrashlytics.instance.recordError(details.exception, details.stack)
     return Material(
       color: const Color(0xFF0C1117),
       child: Center(

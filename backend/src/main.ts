@@ -3,6 +3,11 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
+// TODO 5c.6: wire Sentry
+// import * as Sentry from '@sentry/node';
+// Sentry.init({ dsn: configService.get('SENTRY_DSN') });
+// app.use(Sentry.Handlers.requestHandler());
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
