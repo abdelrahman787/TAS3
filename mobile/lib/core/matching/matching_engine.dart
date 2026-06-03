@@ -134,11 +134,16 @@ class MatchingEngine {
   }
 
   // ── Multi-word sequence match ──────────────────────────────────
+  ///
+  /// On the first mismatch, looks ahead up to [orderLookahead] words to see if
+  /// the user's token matches a *later* expected word. If so, classifies the
+  /// error as [ErrorType.orderError] instead of [ErrorType.substitution].
   static MultiMatchResult matchSequence({
     required List<String> asrTokens,
     required List<QuranWord> expectedSequence,
     required double confidence,
     required DifficultyMode mode,
+    int orderLookahead = 5,
   }) {
     int matched = 0;
     MatchResult? firstError;
@@ -154,7 +159,29 @@ class MatchingEngine {
       if (r.isMatch) {
         matched++;
       } else {
-        firstError = r;
+        // Look ahead: would the token have matched a near-future expected word?
+        if (r.errorType == ErrorType.substitution) {
+          final end = min(i + 1 + orderLookahead, expectedSequence.length);
+          for (int j = i + 1; j < end; j++) {
+            final ahead = match(
+              asrToken: asrTokens[i],
+              expectedWord: expectedSequence[j].uthmaniText,
+              confidence: confidence,
+              mode: mode,
+            );
+            if (ahead.isMatch) {
+              firstError = MatchResult(
+                isMatch: false,
+                distance: r.distance,
+                errorType: ErrorType.orderError,
+              );
+              break;
+            }
+          }
+          firstError ??= r;
+        } else {
+          firstError = r;
+        }
         break;
       }
     }

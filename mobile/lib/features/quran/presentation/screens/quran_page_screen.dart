@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/matching/matching_engine.dart';
+import '../../../../core/preferences/user_preferences.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../recitation/presentation/screens/recitation_screen.dart';
 import '../providers/quran_providers.dart';
@@ -20,12 +21,13 @@ class QuranPageScreen extends ConsumerStatefulWidget {
 class _QuranPageScreenState extends ConsumerState<QuranPageScreen> {
   late final PageController _controller;
   late int _currentPage;
-  DifficultyMode _difficulty = DifficultyMode.normal;
+  late DifficultyMode _difficulty;
 
   @override
   void initState() {
     super.initState();
     _currentPage = widget.initialPage;
+    _difficulty = ref.read(userPreferencesProvider).difficulty;
     _controller = PageController(initialPage: widget.initialPage - 1);
   }
 
@@ -107,7 +109,10 @@ class _QuranPageScreenState extends ConsumerState<QuranPageScreen> {
                     ButtonSegment(value: DifficultyMode.strict, label: Text('Strict')),
                   ],
                   selected: {_difficulty},
-                  onSelectionChanged: (s) => setState(() => _difficulty = s.first),
+                  onSelectionChanged: (s) {
+                    setState(() => _difficulty = s.first);
+                    ref.read(userPreferencesProvider).setDifficulty(s.first);
+                  },
                 ),
                 const SizedBox(height: 12),
                 SizedBox(

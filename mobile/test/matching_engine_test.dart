@@ -142,6 +142,24 @@ void main() {
       expect(r.firstError!.errorType, ErrorType.substitution);
     });
 
+    test('reciting a later word out of order → orderError', () {
+      final expected = [
+        _w(1, 'بِسْمِ'),
+        _w(2, 'ٱللَّهِ'),
+        _w(3, 'ٱلرَّحْمَٰنِ'),
+        _w(4, 'ٱلرَّحِيمِ'),
+      ];
+      // User skips ٱللَّهِ and jumps to ٱلرَّحِيمِ
+      final r = MatchingEngine.matchSequence(
+        asrTokens: ['بسم', 'الرحيم'],
+        expectedSequence: expected,
+        confidence: 0.9,
+        mode: DifficultyMode.normal,
+      );
+      expect(r.matchedCount, 1);
+      expect(r.firstError?.errorType, ErrorType.orderError);
+    });
+
     test('full ayah recited in one breath reveals all', () {
       final expected = [
         _w(1, 'بِسْمِ'),

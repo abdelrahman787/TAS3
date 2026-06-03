@@ -17,6 +17,7 @@ dependencies:
   path: ^1.9.0
   record: ^5.1.2
   permission_handler: ^11.3.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

@@ -4,6 +4,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../quran/presentation/providers/quran_providers.dart';
 import '../../../quran/presentation/screens/quran_page_screen.dart';
+import '../../../settings/presentation/settings_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -56,6 +57,19 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: AppColors.mutedText),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
+          ),
+        ],
+      ),
+      extendBodyBehindAppBar: true,
       body: SafeArea(
         child: Center(
           child: Padding(
