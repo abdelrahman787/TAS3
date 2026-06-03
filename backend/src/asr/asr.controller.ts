@@ -11,6 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AsrService } from './asr.service';
@@ -25,7 +26,7 @@ interface UploadedAudio {
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 @Controller('asr')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ThrottlerGuard)
 export class AsrController {
   constructor(private readonly asr: AsrService) {}
 

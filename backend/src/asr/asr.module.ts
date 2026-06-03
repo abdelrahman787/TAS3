@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { AuthModule } from '../auth/auth.module';
 import { AsrController } from './asr.controller';
@@ -13,6 +14,6 @@ import { AsrService } from './asr.service';
     AuthModule,
   ],
   controllers: [AsrController],
-  providers: [AsrService],
+  providers: [AsrService, ThrottlerGuard],
 })
 export class AsrModule {}
