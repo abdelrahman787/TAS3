@@ -46,3 +46,13 @@ android:usesCleartextTraffic="true"
 ```
 
 This is dev-only; production must use HTTPS.
+
+## ⚠️ Before Production Release
+
+- [ ] Remove `android:usesCleartextTraffic="true"` from `AndroidManifest.xml`
+- [ ] Set `JWT_SECRET` to a strong random value (min 32 chars)
+- [ ] Set `GROQ_API_KEY` in backend `.env` (never in mobile build)
+- [ ] Enable HTTPS on your backend domain
+- [ ] Set CORS origins to your production domain only
+- [ ] Run `npm run migration:run` on the production database
+- [ ] Verify `flutter_secure_storage` Keychain Sharing is enabled (iOS)
