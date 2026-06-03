@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../quran/presentation/providers/quran_providers.dart';
 import '../../../quran/presentation/screens/quran_page_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -13,7 +14,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _pickSurah(BuildContext context) async {
+  Future<void> _pickSurah(BuildContext context, WidgetRef ref) async {
     final controller = TextEditingController();
     final n = await showDialog<int>(
       context: context,
@@ -39,9 +40,17 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
     if (n == null || !context.mounted) return;
-    // Phase 1: jump to page 1 of surah is not yet wired (needs surah→page lookup).
-    // For now we navigate to page 1; backend has /quran/surah/:n to drive this in Phase 2.
-    _openPage(context, 1);
+
+    try {
+      final info = await ref.read(quranRepositoryProvider).getSurahInfo(n);
+      if (!context.mounted) return;
+      _openPage(context, info.pageStart);
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load surah $n: $e')),
+      );
+    }
   }
 
   @override
@@ -84,7 +93,7 @@ class HomeScreen extends ConsumerWidget {
                       side: const BorderSide(color: AppColors.gold),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    onPressed: () => _pickSurah(context),
+                    onPressed: () => _pickSurah(context, ref),
                     child: const Text('Choose Surah'),
                   ),
                 ),

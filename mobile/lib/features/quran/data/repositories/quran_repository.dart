@@ -1,5 +1,6 @@
 import '../../../../core/network/api_client.dart';
 import '../models/page_model.dart';
+import '../models/surah_info.dart';
 
 class QuranRepository {
   final ApiClient client;
@@ -10,8 +11,8 @@ class QuranRepository {
     return QuranPage.fromJson(res.data as Map<String, dynamic>);
   }
 
-  Future<Map<String, dynamic>> getSurah(int surahNumber) async {
+  Future<SurahInfo> getSurahInfo(int surahNumber) async {
     final res = await client.dio.get('/quran/surah/$surahNumber');
-    return res.data as Map<String, dynamic>;
+    return SurahInfo.fromJson(res.data as Map<String, dynamic>);
   }
 }
