@@ -6,6 +6,7 @@ import { User } from '../auth/entities/user.entity';
 import { InitialSchema1700000000000 } from '../../migrations/1700000000000-InitialSchema';
 import { Sessions1700000000001 } from '../../migrations/1700000000001-Sessions';
 import { Users1700000000002 } from '../../migrations/1700000000002-Users';
+import { BackfillLegacyUser1700000000003 } from '../../migrations/1700000000003-BackfillLegacyUser';
 
 export const typeOrmConfig: DataSourceOptions = {
   type: 'postgres',
@@ -15,6 +16,7 @@ export const typeOrmConfig: DataSourceOptions = {
     InitialSchema1700000000000,
     Sessions1700000000001,
     Users1700000000002,
+    BackfillLegacyUser1700000000003,
   ],
   synchronize: false,
   logging: false,
