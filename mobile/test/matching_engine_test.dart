@@ -130,7 +130,10 @@ void main() {
         _w(3, 'ٱلرَّحْمَٰنِ'),
         _w(4, 'ٱلرَّحِيمِ'),
       ];
-      final tokens = ['بسم', 'الله', 'الرحيم', 'الرحيم']; // 3rd is wrong order
+      // 3rd token is unrelated to anything in the lookahead window so the
+      // Phase-3 lookahead can't reclassify it — it stays as substitution.
+      // The dedicated orderError path is asserted by the next test.
+      final tokens = ['بسم', 'الله', 'كتاب', 'كتاب'];
       final r = MatchingEngine.matchSequence(
         asrTokens: tokens,
         expectedSequence: expected,
