@@ -6,29 +6,39 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
+import '../constants/app_constants.dart';
 import 'asr_response.dart';
 
-/// Wraps microphone recording + Groq Whisper transcription.
+/// Wraps microphone recording + transcription via the backend ASR proxy.
 ///
 /// Usage:
-///   final mgr = ASRManager(apiKey: '...');
-///   await mgr.start();          // begin capture
-///   final path = await mgr.stop();
+///   final mgr = ASRManager(dio: apiClient.dio);
+///   final path = await mgr.start();
+///   await mgr.stop();
 ///   final result = await mgr.transcribe(path);
+///
+/// The legacy `apiKey` parameter is retained for source compatibility with
+/// existing fakes (e.g. test doubles); it is no longer read. The Groq key
+/// now lives only in the backend `.env` (5c.1 / 5c.2).
 class ASRManager {
-  final String apiKey;
+  @Deprecated('GROQ_API_KEY now lives on the backend; this is unused.')
+  final String? apiKey;
+
   final AudioRecorder _recorder = AudioRecorder();
   final Dio _dio;
 
   int _consecutiveFailures = 0;
   int get consecutiveFailures => _consecutiveFailures;
 
-  ASRManager({required this.apiKey, Dio? dio})
-      : _dio = dio ?? Dio(BaseOptions(receiveTimeout: const Duration(seconds: 30)));
+  ASRManager({this.apiKey, Dio? dio})
+      : _dio = dio ??
+            Dio(BaseOptions(
+              baseUrl: AppConstants.backendUrl,
+              receiveTimeout: const Duration(seconds: 30),
+            ));
 
   Future<bool> hasPermission() => _recorder.hasPermission();
 
-  /// Begin recording to a temp .m4a file. Caller invokes [stop] to finish.
   Future<String> start() async {
     final dir = await getTemporaryDirectory();
     final path = p.join(dir.path, 'asr_${DateTime.now().millisecondsSinceEpoch}.m4a');
@@ -48,24 +58,21 @@ class ASRManager {
 
   Future<void> dispose() => _recorder.dispose();
 
-  /// POST audio file to Groq Whisper. Returns null on failure.
+  /// POST audio file to the backend ASR proxy. The Bearer token is attached
+  /// by the global ApiClient's Dio interceptor (5b.5); no header is set here.
+  /// Returns null on transport / server failure.
   Future<ASRResponse?> transcribe(String audioPath) async {
     final file = File(audioPath);
     if (!await file.exists()) return null;
 
     try {
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(audioPath, filename: 'audio.m4a'),
-        'model': 'whisper-large-v3',
-        'language': 'ar',
-        'response_format': 'verbose_json',
-        'prompt': 'قرآن كريم بسم الله الرحمن الرحيم',
+        'audio': await MultipartFile.fromFile(audioPath, filename: 'audio.m4a'),
       });
 
       final response = await _dio.post<Map<String, dynamic>>(
-        'https://api.groq.com/openai/v1/audio/transcriptions',
+        '/asr/transcribe',
         data: formData,
-        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
       );
 
       _consecutiveFailures = 0;

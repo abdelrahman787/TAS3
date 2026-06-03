@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/asr/asr_manager.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/matching/matching_engine.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../quran/domain/entities/quran_word.dart';
@@ -344,7 +343,9 @@ class RecitationNotifier extends StateNotifier<RecitationState> {
 
 // ── Providers ────────────────────────────────────────────────────
 final asrManagerProvider = Provider<ASRManager>((ref) {
-  final mgr = ASRManager(apiKey: AppConstants.groqApiKey);
+  // Reuse the global ApiClient's Dio so the Bearer token interceptor
+  // attaches to /asr/transcribe automatically.
+  final mgr = ASRManager(dio: ref.watch(apiClientProvider).dio);
   ref.onDispose(mgr.dispose);
   return mgr;
 });
