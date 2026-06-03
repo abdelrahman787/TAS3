@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../domain/recitation_state.dart';
 
 class SessionSummaryScreen extends StatelessWidget {
@@ -37,6 +38,21 @@ class SessionSummaryScreen extends StatelessWidget {
             _StatRow(label: 'Order errors', value: state.orderErrors, color: Colors.orangeAccent),
             _StatRow(label: 'Pronunciation', value: state.pronunciationErrors, color: Colors.orangeAccent),
             const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.gold),
+                  foregroundColor: AppColors.text,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () => Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                ),
+                child: const Text('View progress'),
+              ),
+            ),
+            const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

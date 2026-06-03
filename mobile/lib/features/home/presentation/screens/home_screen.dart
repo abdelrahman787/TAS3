@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../quran/presentation/providers/quran_providers.dart';
+import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../quran/presentation/screens/quran_page_screen.dart';
 import '../../../settings/presentation/settings_screen.dart';
 
@@ -61,6 +62,13 @@ class HomeScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart, color: AppColors.mutedText),
+            tooltip: 'My progress',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: AppColors.mutedText),
             onPressed: () => Navigator.of(context).push(

@@ -43,11 +43,14 @@ Backend listens on `http://localhost:3000`. Health check: `GET /health`.
 | POST | `/sessions` | Create a recitation session |
 | POST | `/sessions/:id/errors` | Log a batch of word errors |
 | PATCH | `/sessions/:id/complete` | Finalize a session with stats |
+| GET | `/analytics/progress` | Aggregate stats (sessions, accuracy, error totals) |
+| GET | `/analytics/sessions` | Recent completed sessions (most recent first) |
+| GET | `/analytics/difficult-words` | Words sorted by error count |
 
 ## Phase status
 
 - ✅ **Phase 1** — Quran viewer (Mushaf RTL layout, page swipe, surah picker)
 - ✅ **Phase 2** — Recitation engine (hide/reveal, Groq Whisper ASR, MatchingEngine, silence detection, manual reveal, session logging)
 - ✅ **Phase 3** — Error handling polish (order-error detection, onboarding, settings screen, persisted preferences)
-- ⏳ **Phase 4** — Analytics (progress dashboard, difficult words)
+- ✅ **Phase 4** — Analytics (progress dashboard, difficult words, recent sessions)
 - ⏳ **Phase 5** — Optimization (vocab boosting, polish, offline)
