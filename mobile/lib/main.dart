@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/auth/auth_notifier.dart';
+import 'core/auth/auth_providers.dart';
+import 'core/auth/auth_state.dart';
 import 'core/constants/app_constants.dart';
 import 'core/preferences/user_preferences.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/home/presentation/screens/home_screen.dart';
 import 'features/onboarding/presentation/onboarding_screen.dart';
 
@@ -31,8 +35,6 @@ Future<void> main() async {
     );
   };
 
-  // Preload SharedPreferences so the Riverpod provider can be overridden
-  // with a synchronous value — eliminates the bootstrap loading flicker.
   final prefs = await SharedPreferences.getInstance();
 
   runApp(
@@ -59,16 +61,29 @@ class QuranTasmee3App extends StatelessWidget {
   }
 }
 
-class _Bootstrap extends ConsumerWidget {
+class _Bootstrap extends ConsumerStatefulWidget {
   const _Bootstrap();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_Bootstrap> createState() => _BootstrapState();
+}
+
+class _BootstrapState extends ConsumerState<_Bootstrap> {
+  bool _authInitStarted = false;
+
+  void _ensureAuthInit(AuthNotifier notifier) {
+    if (_authInitStarted) return;
+    _authInitStarted = true;
+    // Fire-and-forget; the notifier updates state when init resolves.
+    notifier.init();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final prefsAsync = ref.watch(sharedPreferencesProvider);
     return prefsAsync.when(
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(
         body: Center(child: Text('Failed to load preferences: $e')),
       ),
@@ -76,12 +91,27 @@ class _Bootstrap extends ConsumerWidget {
         final prefs = ref.read(userPreferencesProvider);
         if (!prefs.onboardingSeen) {
           return OnboardingScreen(
-            onDone: () => Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
-            ),
+            onDone: () {
+              // Onboarding done — flip state and re-render the bootstrap.
+              setState(() {});
+            },
           );
         }
-        return const HomeScreen();
+
+        final authNotifier = ref.read(authNotifierProvider.notifier);
+        _ensureAuthInit(authNotifier);
+        final auth = ref.watch(authNotifierProvider);
+
+        switch (auth.status) {
+          case AuthStatus.unknown:
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          case AuthStatus.unauthenticated:
+            return const LoginScreen();
+          case AuthStatus.authenticated:
+            return const HomeScreen();
+        }
       },
     );
   }
