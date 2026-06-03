@@ -1,0 +1,30 @@
+name: quran_tasmee3
+description: Quran Tasmee3 — voice-driven Quran memorization (Phase 1).
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  flutter_riverpod: ^2.5.1
+  dio: ^5.4.0
+  sqflite: ^2.3.2
+  path_provider: ^2.1.2
+  path: ^1.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: UthmaniHafs
+      fonts:
+        - asset: assets/fonts/UthmanicHafs1Ver18.ttf
