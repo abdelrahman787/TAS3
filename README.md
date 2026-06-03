@@ -40,6 +40,9 @@ Backend listens on `http://localhost:3000`. Health check: `GET /health`.
 | GET | `/health` | Service health |
 | GET | `/quran/page/:n` | All words for page n (1–604) |
 | GET | `/quran/surah/:n` | Surah metadata (name, ayah count, page range) |
+| POST | `/sessions` | Create a recitation session |
+| POST | `/sessions/:id/errors` | Log a batch of word errors |
+| PATCH | `/sessions/:id/complete` | Finalize a session with stats |
 
 ## What's NOT in Phase 1
 

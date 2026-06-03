@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/matching/matching_engine.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../recitation/presentation/screens/recitation_screen.dart';
 import '../providers/quran_providers.dart';
 import '../widgets/mushaf_page_widget.dart';
 
@@ -21,8 +25,6 @@ class _QuranPageScreenState extends ConsumerState<QuranPageScreen> {
   void initState() {
     super.initState();
     _currentPage = widget.initialPage;
-    // In RTL, page 1 is on the right. We use reverse: true on PageView so a
-    // right-to-left swipe advances to the next page.
     _controller = PageController(initialPage: widget.initialPage - 1);
   }
 
@@ -32,8 +34,33 @@ class _QuranPageScreenState extends ConsumerState<QuranPageScreen> {
     super.dispose();
   }
 
+  Future<void> _startRecitation() async {
+    final mic = await Permission.microphone.request();
+    if (!mic.isGranted) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Microphone permission required')),
+      );
+      return;
+    }
+    final async = ref.read(quranPageProvider(_currentPage));
+    final page = async.value;
+    if (page == null || !mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RecitationScreen(
+          pageNumber: _currentPage,
+          words: page.words,
+          difficulty: DifficultyMode.normal,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final pageAsync = ref.watch(quranPageProvider(_currentPage));
+    final canStart = pageAsync.hasValue;
     return Scaffold(
       appBar: AppBar(
         title: Text('صفحة $_currentPage'),
@@ -73,8 +100,8 @@ class _QuranPageScreenState extends ConsumerState<QuranPageScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: null, // Phase 2 will enable this
-                child: const Text('Start Recitation (Phase 2)'),
+                onPressed: canStart ? _startRecitation : null,
+                child: const Text('Start Recitation'),
               ),
             ),
           ),

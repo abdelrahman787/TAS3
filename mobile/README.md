@@ -13,8 +13,27 @@ flutter pub get
 ## Run
 
 ```bash
-flutter run
+flutter run --dart-define=GROQ_API_KEY=<your-key>
 ```
+
+## Microphone permission
+
+Add to `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+```
+
+For iOS, add to `ios/Runner/Info.plist`:
+
+```xml
+<key>NSMicrophoneUsageDescription</key>
+<string>Quran Tasmee3 uses the microphone to verify your recitation.</string>
+```
+
+## Groq API key
+
+Get a free key at https://console.groq.com and pass it via `--dart-define=GROQ_API_KEY=...`.
 
 The default backend URL is `http://10.0.2.2:3000` (Android emulator → host). To override:
 

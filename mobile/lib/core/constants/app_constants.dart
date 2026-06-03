@@ -9,4 +9,8 @@ class AppConstants {
   );
 
   static const int totalPages = 604;
+
+  /// Set with --dart-define=GROQ_API_KEY=...
+  static const String groqApiKey =
+      String.fromEnvironment('GROQ_API_KEY', defaultValue: '');
 }
