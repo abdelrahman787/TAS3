@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:fake_async/fake_async.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quran_tasmee3/core/asr/asr_manager.dart';
 import 'package:quran_tasmee3/core/asr/asr_response.dart';
@@ -10,6 +12,8 @@ import 'package:quran_tasmee3/features/quran/domain/entities/quran_word.dart';
 import 'package:quran_tasmee3/features/recitation/data/recitation_api.dart';
 import 'package:quran_tasmee3/features/recitation/domain/recitation_state.dart';
 import 'package:quran_tasmee3/features/recitation/presentation/notifier/recitation_notifier.dart';
+
+import 'helpers/mock_secure_storage.dart';
 
 class FakeASRManager extends ASRManager {
   final List<String> responses;
@@ -88,6 +92,43 @@ RecitationParams _params(List<QuranWord> words) => RecitationParams(
     );
 
 void main() {
+  // flutter_secure_storage uses MethodChannels that aren't implemented on
+  // the Dart VM. ApiClient's request interceptor reads from secure storage,
+  // and although our fakes never trigger a real HTTP call, constructing the
+  // ApiClient still wires the channel — stub it out so any incidental use
+  // resolves to MockSecureStorage instead of crashing the test isolate.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+    final backing = MockSecureStorage();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall call) async {
+      switch (call.method) {
+        case 'read':
+          return await backing.read(key: call.arguments['key'] as String);
+        case 'write':
+          await backing.write(
+            key: call.arguments['key'] as String,
+            value: call.arguments['value'] as String?,
+          );
+          return null;
+        case 'delete':
+          await backing.delete(key: call.arguments['key'] as String);
+          return null;
+        case 'deleteAll':
+          await backing.deleteAll();
+          return null;
+        case 'containsKey':
+          return await backing.containsKey(key: call.arguments['key'] as String);
+        case 'readAll':
+          return jsonEncode(await backing.readAll());
+        default:
+          return null;
+      }
+    });
+  });
+
   test('starts in idle state', () {
     final notifier = RecitationNotifier(
       params: _params([_w(1, 'بِسْمِ')]),
