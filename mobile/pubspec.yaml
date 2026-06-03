@@ -28,7 +28,13 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  fonts:
-    - family: UthmaniHafs
-      fonts:
-        - asset: assets/fonts/UthmanicHafs1Ver18.ttf
+  # The Uthmani Hafs font is license-restricted and not committed.
+  # Drop UthmanicHafs1Ver18.ttf into assets/fonts/ (see
+  # assets/fonts/README.md) and uncomment the block below to enable
+  # it. Without the file, the app falls back to the system Arabic
+  # font — the build still succeeds, and CI does not need the asset.
+  #
+  # fonts:
+  #   - family: UthmaniHafs
+  #     fonts:
+  #       - asset: assets/fonts/UthmanicHafs1Ver18.ttf
