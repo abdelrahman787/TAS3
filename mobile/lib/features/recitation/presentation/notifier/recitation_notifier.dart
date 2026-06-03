@@ -36,7 +36,6 @@ class RecitationNotifier extends StateNotifier<RecitationState> {
   int _pronunciationErrors = 0;
 
   Timer? _silenceTimer;
-  Timer? _chunkTimer;
   bool _disposed = false;
 
   static const Duration _chunkDuration = Duration(seconds: 4);
@@ -74,9 +73,15 @@ class RecitationNotifier extends StateNotifier<RecitationState> {
   }
 
   Future<void> pause() async {
+    // Mid-transcribe: just flip status. The while-loop in
+    // _beginListeningCycle will see !isActive on its next iteration and exit
+    // cleanly instead of racing with stop().
+    if (state.status == RecitationStatus.processing) {
+      state = state.copyWith(status: RecitationStatus.paused);
+      return;
+    }
     if (state.status != RecitationStatus.listening) return;
     _silenceTimer?.cancel();
-    _chunkTimer?.cancel();
     await asr.stop();
     state = state.copyWith(status: RecitationStatus.paused);
   }
@@ -90,7 +95,6 @@ class RecitationNotifier extends StateNotifier<RecitationState> {
 
   Future<void> end() async {
     _silenceTimer?.cancel();
-    _chunkTimer?.cancel();
     await asr.stop();
 
     final sessionId = state.sessionId;
@@ -150,27 +154,42 @@ class RecitationNotifier extends StateNotifier<RecitationState> {
 
   // ── Recording / ASR cycle ──────────────────────────────────────
   Future<void> _beginListeningCycle() async {
+    while (!_disposed && state.isActive) {
+      await _transcribeAndProcess();
+    }
+  }
+
+  Future<void> _transcribeAndProcess() async {
     if (_disposed || state.status != RecitationStatus.listening) return;
     final path = await asr.start();
-    _chunkTimer = Timer(_chunkDuration, () async {
-      if (_disposed) return;
-      final filePath = await asr.stop() ?? path;
-      // Move into processing while we transcribe.
-      state = state.copyWith(status: RecitationStatus.processing);
-      final result = await asr.transcribe(filePath);
-      if (asr.shouldWarnAudioUnclear) {
-        state = state.copyWith(audioUnclearWarning: true);
-      }
-      if (result != null && result.text.isNotEmpty) {
-        _handleASRResult(result.text, result.confidence, result.tokens);
-      }
-      if (_disposed) return;
-      state = state.copyWith(
-        status: RecitationStatus.listening,
-        audioUnclearWarning: false,
-      );
-      await _beginListeningCycle();
-    });
+    await Future<void>.delayed(_chunkDuration);
+    if (_disposed) return;
+
+    // If pause() flipped us mid-record, stop and let the loop exit.
+    if (state.status == RecitationStatus.paused) {
+      await asr.stop();
+      return;
+    }
+
+    final filePath = await asr.stop() ?? path;
+    state = state.copyWith(status: RecitationStatus.processing);
+    final result = await asr.transcribe(filePath);
+    if (_disposed) return;
+
+    if (asr.shouldWarnAudioUnclear) {
+      state = state.copyWith(audioUnclearWarning: true);
+    }
+    if (result != null && result.text.isNotEmpty) {
+      _handleASRResult(result.text, result.confidence, result.tokens);
+    }
+
+    // Pause arriving during transcription: don't flip back to listening.
+    if (state.status == RecitationStatus.paused) return;
+
+    state = state.copyWith(
+      status: RecitationStatus.listening,
+      audioUnclearWarning: false,
+    );
   }
 
   void _handleASRResult(String text, double confidence, List<String> apiTokens) {
@@ -317,7 +336,6 @@ class RecitationNotifier extends StateNotifier<RecitationState> {
   void dispose() {
     _disposed = true;
     _silenceTimer?.cancel();
-    _chunkTimer?.cancel();
     asr.stop();
     asr.dispose();
     super.dispose();
