@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/auth/auth_providers.dart';
 import '../../../../core/matching/matching_engine.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../quran/domain/entities/quran_word.dart';
@@ -38,7 +39,8 @@ class _RecitationScreenState extends ConsumerState<RecitationScreen> {
       difficulty: widget.difficulty,
     );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(recitationProvider(_params).notifier).start();
+      final userId = ref.read(authNotifierProvider).user?.id;
+      await ref.read(recitationProvider(_params).notifier).start(userId: userId);
       if (mounted) setState(() => _started = true);
     });
   }

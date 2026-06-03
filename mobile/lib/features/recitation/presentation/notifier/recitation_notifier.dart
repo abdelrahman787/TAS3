@@ -350,7 +350,7 @@ final asrManagerProvider = Provider<ASRManager>((ref) {
 });
 
 final recitationApiProvider = Provider<RecitationApi>(
-  (ref) => RecitationApi(ApiClient()),
+  (ref) => RecitationApi(ref.watch(apiClientProvider)),
 );
 
 final recitationProvider = StateNotifierProvider.autoDispose
