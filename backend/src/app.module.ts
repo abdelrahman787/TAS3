@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { QuranModule } from './quran/quran.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AsrModule } from './asr/asr.module';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -16,6 +17,7 @@ import { HealthController } from './health/health.controller';
     QuranModule,
     SessionsModule,
     AnalyticsModule,
+    AsrModule,
   ],
   controllers: [HealthController],
 })
