@@ -7,7 +7,7 @@ import {
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
-import * as FormData from 'form-data';
+import FormData from 'form-data';
 import { firstValueFrom } from 'rxjs';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/audio/transcriptions';
