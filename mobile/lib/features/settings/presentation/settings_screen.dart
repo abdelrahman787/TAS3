@@ -92,6 +92,61 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               }
             },
           ),
+          const _SectionHeader('الخصوصية'),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: Text(
+                'يقوم التطبيق بتخزين النصوص المعرَّف بها صوتياً لتحسين تتبع الأخطاء. '
+                'يمكنك حذف جميع بياناتك المحلية من خلال زر الحذف أعلاه. '
+                'لا يتم مشاركة بياناتك مع أطراف ثالثة.',
+                style: TextStyle(color: AppColors.mutedText, height: 1.6),
+              ),
+            ),
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: TextButton(
+                onPressed: () => _showPrivacyPolicy(context),
+                child: const Text('سياسة الخصوصية الكاملة'),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showPrivacyPolicy(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('سياسة الخصوصية'),
+        content: const SingleChildScrollView(
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Text(
+              // Placeholder copy — to be replaced with the legal version before
+              // the production release (5c.5 checklist).
+              'هذا نص مبدئي لسياسة الخصوصية. النسخة النهائية ستُنشر قبل الإطلاق الرسمي. '
+              '\n\nالبيانات المُخزَّنة: النصوص المعرَّف بها صوتياً، درجات الثقة، نوع '
+              'الخطأ، عدد المحاولات. لا يتم تخزين الصوت الخام إلا بعد موافقة صريحة منك. '
+              '\n\nمشاركة البيانات: لا تتم مشاركة بياناتك مع أي طرف ثالث لأغراض إعلانية. '
+              '\n\nالحذف: يمكنك حذف بياناتك المحلية أو طلب حذف حسابك في أي وقت.',
+              style: TextStyle(height: 1.6),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('حسناً'),
+          ),
         ],
       ),
     );
