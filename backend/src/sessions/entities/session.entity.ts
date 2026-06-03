@@ -15,7 +15,7 @@ export class Session {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('varchar', { length: 64, nullable: true, name: 'user_id' })
+  @Column('uuid', { nullable: true, name: 'user_id' })
   userId: string | null;
 
   @Column('varchar', { length: 16, name: 'scope_type' })
