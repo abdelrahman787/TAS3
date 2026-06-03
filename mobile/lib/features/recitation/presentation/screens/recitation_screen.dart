@@ -7,6 +7,7 @@ import '../../../quran/domain/entities/quran_word.dart';
 import '../../domain/recitation_state.dart';
 import '../notifier/recitation_notifier.dart';
 import '../widgets/word_widget.dart';
+import 'session_summary_screen.dart';
 
 class RecitationScreen extends ConsumerStatefulWidget {
   final int pageNumber;
@@ -58,7 +59,14 @@ class _RecitationScreenState extends ConsumerState<RecitationScreen> {
       }
       if (next.status == RecitationStatus.complete &&
           prev?.status != RecitationStatus.complete) {
-        Navigator.of(context).maybePop();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => SessionSummaryScreen(
+              state: next,
+              pageNumber: widget.pageNumber,
+            ),
+          ),
+        );
       }
     });
 

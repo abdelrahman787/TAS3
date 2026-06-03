@@ -20,6 +20,7 @@ class QuranPageScreen extends ConsumerStatefulWidget {
 class _QuranPageScreenState extends ConsumerState<QuranPageScreen> {
   late final PageController _controller;
   late int _currentPage;
+  DifficultyMode _difficulty = DifficultyMode.normal;
 
   @override
   void initState() {
@@ -51,7 +52,7 @@ class _QuranPageScreenState extends ConsumerState<QuranPageScreen> {
         builder: (_) => RecitationScreen(
           pageNumber: _currentPage,
           words: page.words,
-          difficulty: DifficultyMode.normal,
+          difficulty: _difficulty,
         ),
       ),
     );
@@ -97,12 +98,26 @@ class _QuranPageScreenState extends ConsumerState<QuranPageScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             color: AppColors.surface,
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: canStart ? _startRecitation : null,
-                child: const Text('Start Recitation'),
-              ),
+            child: Column(
+              children: [
+                SegmentedButton<DifficultyMode>(
+                  segments: const [
+                    ButtonSegment(value: DifficultyMode.easy, label: Text('Easy')),
+                    ButtonSegment(value: DifficultyMode.normal, label: Text('Normal')),
+                    ButtonSegment(value: DifficultyMode.strict, label: Text('Strict')),
+                  ],
+                  selected: {_difficulty},
+                  onSelectionChanged: (s) => setState(() => _difficulty = s.first),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: canStart ? _startRecitation : null,
+                    child: const Text('Start Recitation'),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

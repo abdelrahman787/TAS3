@@ -1,0 +1,37 @@
+# Native permission patches
+
+After running `flutter create --platforms=android,ios .`, apply these manually.
+
+## Android — `android/app/src/main/AndroidManifest.xml`
+
+Add inside the `<manifest>` element (above `<application>`):
+
+```xml
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+## iOS — `ios/Runner/Info.plist`
+
+Add inside the top-level `<dict>`:
+
+```xml
+<key>NSMicrophoneUsageDescription</key>
+<string>يستخدم التطبيق الميكروفون للتحقق من تسميع القرآن الكريم.</string>
+```
+
+iOS minimum deployment target should be 12.0 or later for `record` 5.x — edit `ios/Podfile`:
+
+```ruby
+platform :ios, '12.0'
+```
+
+## Android — cleartext for local dev
+
+If you point the app at `http://10.0.2.2:3000` (Android emulator → host), add to `AndroidManifest.xml` inside `<application>`:
+
+```xml
+android:usesCleartextTraffic="true"
+```
+
+This is dev-only; production must use HTTPS.

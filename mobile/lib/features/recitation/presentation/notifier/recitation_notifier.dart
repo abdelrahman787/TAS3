@@ -104,6 +104,10 @@ class RecitationNotifier extends StateNotifier<RecitationState> {
       state = state.copyWith(
         status: RecitationStatus.complete,
         correctWords: stats.correctWords,
+        forgottenWords: stats.forgottenWords,
+        substitutions: stats.substitutions,
+        orderErrors: stats.orderErrors,
+        pronunciationErrors: stats.pronunciationErrors,
       );
     } else {
       state = state.copyWith(status: RecitationStatus.complete);

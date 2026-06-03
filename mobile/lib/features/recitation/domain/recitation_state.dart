@@ -14,6 +14,10 @@ class RecitationState {
   final String? sessionId;
   final int totalWords;
   final int correctWords;
+  final int forgottenWords;
+  final int substitutions;
+  final int orderErrors;
+  final int pronunciationErrors;
 
   const RecitationState({
     this.status = RecitationStatus.idle,
@@ -24,6 +28,10 @@ class RecitationState {
     this.sessionId,
     this.totalWords = 0,
     this.correctWords = 0,
+    this.forgottenWords = 0,
+    this.substitutions = 0,
+    this.orderErrors = 0,
+    this.pronunciationErrors = 0,
   });
 
   bool get isListening => status == RecitationStatus.listening;
@@ -39,6 +47,10 @@ class RecitationState {
     String? sessionId,
     int? totalWords,
     int? correctWords,
+    int? forgottenWords,
+    int? substitutions,
+    int? orderErrors,
+    int? pronunciationErrors,
   }) =>
       RecitationState(
         status: status ?? this.status,
@@ -49,5 +61,9 @@ class RecitationState {
         sessionId: sessionId ?? this.sessionId,
         totalWords: totalWords ?? this.totalWords,
         correctWords: correctWords ?? this.correctWords,
+        forgottenWords: forgottenWords ?? this.forgottenWords,
+        substitutions: substitutions ?? this.substitutions,
+        orderErrors: orderErrors ?? this.orderErrors,
+        pronunciationErrors: pronunciationErrors ?? this.pronunciationErrors,
       );
 }
