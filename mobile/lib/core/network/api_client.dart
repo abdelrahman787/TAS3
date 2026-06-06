@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../constants/app_constants.dart';
+import '../preferences/user_preferences.dart';
 
 class ApiClient {
   final Dio dio;
@@ -14,10 +15,12 @@ class ApiClient {
   /// to flip the AuthNotifier into unauthenticated state.
   FutureOr<void> Function()? onUnauthorized;
 
-  ApiClient({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage(),
+  ApiClient({
+    String? baseUrl,
+    FlutterSecureStorage? storage,
+  })  : _storage = storage ?? const FlutterSecureStorage(),
         dio = Dio(BaseOptions(
-          baseUrl: AppConstants.backendUrl,
+          baseUrl: baseUrl ?? AppConstants.backendUrl,
           connectTimeout: const Duration(seconds: 15),
           receiveTimeout: const Duration(seconds: 30),
           headers: {'Accept': 'application/json'},
@@ -40,4 +43,7 @@ class ApiClient {
   }
 }
 
-final apiClientProvider = Provider<ApiClient>((_) => ApiClient());
+final apiClientProvider = Provider<ApiClient>((ref) {
+  final prefs = ref.watch(userPreferencesProvider);
+  return ApiClient(baseUrl: prefs.backendUrl);
+});

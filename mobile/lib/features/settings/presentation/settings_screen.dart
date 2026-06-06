@@ -15,6 +15,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   late DifficultyMode _difficulty;
   late bool _storeAudio;
+  late String _backendUrl;
 
   @override
   void initState() {
@@ -22,6 +23,58 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final prefs = ref.read(userPreferencesProvider);
     _difficulty = prefs.difficulty;
     _storeAudio = prefs.storeAudio;
+    _backendUrl = prefs.backendUrl;
+  }
+
+  Future<void> _editBackendUrl(BuildContext context) async {
+    final controller = TextEditingController(text: _backendUrl);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Backend URL'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: const InputDecoration(
+                hintText: 'http://192.168.1.10:3000',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.url,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Use the LAN IP of the machine running docker-compose, '
+              'including http:// and the port.',
+              style: TextStyle(color: AppColors.mutedText, fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (result == null) return;
+    await ref.read(userPreferencesProvider).setBackendUrl(result);
+    if (!context.mounted) return;
+    setState(() => _backendUrl = ref.read(userPreferencesProvider).backendUrl);
+    // Force the Dio-providing providers to rebuild against the new URL.
+    ref.invalidate(userPreferencesProvider);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Backend URL set to $_backendUrl')),
+    );
   }
 
   @override
@@ -31,6 +84,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
+          const _SectionHeader('Connection'),
+          ListTile(
+            title: const Text('Backend URL'),
+            subtitle: Text(
+              _backendUrl,
+              style: const TextStyle(color: AppColors.mutedText),
+            ),
+            trailing: const Icon(Icons.edit_outlined, color: AppColors.gold),
+            onTap: () => _editBackendUrl(context),
+          ),
           const _SectionHeader('Recitation'),
           ListTile(
             title: const Text('Difficulty mode'),

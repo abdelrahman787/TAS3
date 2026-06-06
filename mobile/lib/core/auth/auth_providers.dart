@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../constants/app_constants.dart';
 import '../network/api_client.dart';
+import '../preferences/user_preferences.dart';
 import 'auth_notifier.dart';
 import 'auth_repository.dart';
 import 'auth_state.dart';
@@ -12,15 +12,18 @@ final secureStorageProvider =
     Provider<FlutterSecureStorage>((_) => const FlutterSecureStorage());
 
 /// A dedicated Dio for the auth endpoints — no token interceptor here so
-/// login/register can succeed before the user has a token.
-final _authDioProvider = Provider<Dio>(
-  (_) => Dio(BaseOptions(
-    baseUrl: AppConstants.backendUrl,
+/// login/register can succeed before the user has a token. baseUrl tracks
+/// the user-configurable preference so a single APK can move between
+/// networks.
+final _authDioProvider = Provider<Dio>((ref) {
+  final prefs = ref.watch(userPreferencesProvider);
+  return Dio(BaseOptions(
+    baseUrl: prefs.backendUrl,
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 30),
     headers: {'Accept': 'application/json'},
-  )),
-);
+  ));
+});
 
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepository(

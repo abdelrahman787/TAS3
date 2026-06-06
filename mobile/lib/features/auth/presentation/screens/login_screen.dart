@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/auth/auth_providers.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/preferences/user_preferences.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../settings/presentation/settings_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -120,6 +122,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                     child: const Text("Don't have an account? Sign up"),
                   ),
+                  const SizedBox(height: 24),
+                  Builder(builder: (ctx) {
+                    final url = ref.watch(userPreferencesProvider).backendUrl;
+                    return TextButton.icon(
+                      icon: const Icon(Icons.settings_ethernet, size: 16),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.mutedText,
+                      ),
+                      onPressed: _busy
+                          ? null
+                          : () => Navigator.of(ctx).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const SettingsScreen(),
+                                ),
+                              ),
+                      label: Text(
+                        'Backend: $url',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
